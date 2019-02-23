@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage{enumitem}
+\usepackage[margin=2cm]{caption}
 \usepackage{hyperref}
 \setlength\parindent{0pt}
 \hypersetup{
@@ -21,26 +22,102 @@
 % \date{}
 \maketitle
 
-\section*{Part 1: Traffic Jams on a circular road}
-The code to this section is available in the appendix
+\section*{Nagel-Schrenkerg (Single Lane) Models }
 
-We are citing \cite{nagel1992cellular}.
 
-Over time, we see that traffic jams can appear with sufficient traffic density. However, depending on the rule of the model, these can eventually disappear.
+Cellular Automata models of traffic flow began with the work of Nagel and Schrenkenberg (1992). In the Nagel-Schrenkenberg model, the road is divided into cells, each possibly containing a maximum of one car. To model a circular road, the boundaries are considered periodic; cars exiting the road on the right automatically reenter the space on the left. Furthermore, time is discretized into steps, and at each time step, cars follow an update rule:
+\begin{enumerate}[itemsep=0.1pt]
+\item \textbf{Acceleration:} If the car is not at its maximum velocity, increase its velocity by one.
+\item \textbf{Deceleration:} If the distance to the car in front is less than the current car's velocity, decrease the speed to exactly the distance to the car in front to avoid a collision.
+\item \textbf{Randomized Slowdown:} If the car is not static, reduce their velocity by 1 with probability $p$. This is to model random behaviors on roads, such as hard braking.
+\item \textbf{Motion}: The cars now move according to their new probabilities.
+\end{enumerate}
+By convention, states of cars on the road are displayed between steps 3 and 4. An example is shown below. 
 
-When using the 'always in the middle' rule, we see that with up to 50\% traffic density, jams eventually disappear. 
+\begin{figure}[h]
+\begin{minipage}[t]{.5\textwidth}
+\raggedright
+......5........5..............5.................................................
+...........5........4..............5............................................
+................5.......4...............5.......................................
+.....................5......5................4..................................
+..........................4......4...............5..............................
+..............................4......5................5.........................
+..................................5.......5................4....................
+.......................................5.......5...............5................
+............................................4.......5...............4...........
+................................................5........4..............4.......
+.....................................................4.......4..............5...
+.4.......................................................4.......4..............
+.....5.......................................................5.......4..........
+..........4.......................................................5......5......
+..............5........................................................5......5.
+...4...............5........................................................4...
+4......4................4.......................................................
+....5......4................4...................................................
+\end{minipage}% <---------------- Note the use of "%"
+\begin{minipage}[t]{.5\textwidth}
+\raggedleft
+........5.....0.0.5.............5.............04...............2..4.............
+.............01.0......5.............5........0....5.............2....5.........
+.............0.01...........4.............2...1.........5..........2.......4....
+.............1.0.2..............4...........2..2.............4.......2.........4
+...4..........00...2................4.........1..3...............5.....3........
+.......4......01.....2..................5......2....4.................3...4.....
+...........2..1.1......3.....................2...3......5................3....5.
+...5.........0.1.2........3....................3....4........5..............4...
+4.......3....1..1..2.........4....................3.....4.........4.............
+....5......1..2..1...2...........5...................3......5.........5.........
+.........2..1...1.1....2..............4.................3........5.........4....
+...........1.2...0.2.....3................4................4..........5........5
+....5.......1..0.0...2......3.................5................5...........4....
+.........2...0.1.1.....3.......3...................4................4..........5
+....5......0.1..1.1.......3.......4....................4................5.......
+.........1.0..1..0.1.........3........5....................5.................5..
+..5.......01...1.0..1...........3..........4....................4...............
+.......2..0.1...01...2.............3...........4....................4...........
 
-Try to look for the relationship between pslow, density, and max speed. 
+\end{minipage}
 
-Following the Nagel-Schrenkberg model (1992), we see... 
+\caption{Both figures show cellular automata simulations with a periodic (circular) road of length 80, a maximum velocity of 5, and $p = 0.5$. While cars slow down randomly. on the left, the sparsity of the open road prevents a traffic jam from forming. On the right, with identical parameters but on a denser road, cars within the jam slow down and prevent the jam from clearing. Instead, the jam slowly moves left throughout the simulation.}
+\end{figure}
 
-\section*{Part 2: Multi-Lane Highways}
+Nagel and Schrenkenberg used flow ---defined as the number of vehicles passing a reference point per unit of time--- to compare between various cellular automata models. Intuitively, a model with a very high density should have roads so congested that few cars can move freely through the reference point, and thus have low flow, while models with too low a density should also have very few cars moving through the point. Thus the density of maximum flow should lie somewhere in between.
+
+\newgeometry{left=2cm, right=2cm}
+\begin{figure*}
+\centering
+\includegraphics[scale = 0.6]{middleorig.png}
+\caption{This shows cellular automata simulations with a length of 100, a maximum velocity of 5, $p = 0.5$, Flow, as a function of car density follows an inverted V shape, peaking sharply at a density of around 0.15, before gradually becoming less efficient. When cars follow the 'always in the middle' rule, the model achieves a peak flow of 0.5 cars per time step.}
+\end{figure*}
+%We are citing \cite{nagel1992cellular}.
+
+%	Over time, we see that traffic jams can appear with sufficient traffic density. However, depending on the rule of the model, these can eventually disappear.
+
+A further augmentation of the algorithm is for cars in the model to aim to be around the same distance from the car in front as to the car in the back. This is slightly more complicated, but yields better flow results, and is as follows:
+\begin{enumerate}[itemsep=0.1pt]
+\item \textbf{Acceleration/Deceleration:} Check the distance to the car in front, and to the car at the back. \begin{enumerate}
+\item If the distance to the car in front is greater than the distance to the car in the back, accelerate the car by one if the car is not already at the maximum speed, and if the car will not exceed the distance to the car in front.
+\item Otherwise, reduce the speed by one if the car is not already static, or reduce the speed to the distance to the car in front, whichever is less.
+\end{enumerate}
+
+\end{enumerate}
+
+
+%When using the 'always in the middle' rule, we see that with up to 50\% traffic density, jams eventually disappear. 
+
+%Try to look for the relationship between pslow, density, and max speed. 
+
+%Following the Nagel-Schrenkberg model (1992), we see... 
+
+\section*{Rickert (Multi-Lane) Models}
 
 In this section, we implement Rickert's (1996) extension to the Nagel-Schrankenberg model. Compared to a single lane road, 
 
 Visualizations over time. 
 
 Analyze how much more traffic can flow through a multilane compared to a single lane model (Plot), latexify
+\section*{Model Comparison}
 
 
 How applicable is the model to Buenos Aires?
@@ -74,7 +151,7 @@ Extend the model to include speed limits, traffic lights, obstacles, and lane me
 
 \section*{Appendix}
 \subsection*{Single Lane Traffic Flow}
-The code to this section is available here
+The code used in this section is available \href{https://github.com/thetruejacob/CS166/blob/master/Nagel-Schrankenberg%20Model.ipynb}{here}.\\
 
 \subsection*{MultiLane Traffic Flow}
 
