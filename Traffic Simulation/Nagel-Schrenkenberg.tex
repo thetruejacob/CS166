@@ -22,6 +22,15 @@
 % \date{}
 \maketitle
 
+\makeatletter
+\newcommand{\mybox}{%
+    \collectbox{%
+        \setlength{\fboxsep}{1pt}%
+        \fbox{\BOXCONTENT}%
+    }%
+}
+
+
 \section*{Nagel-Schrenkerg (Single Lane) Models }
 
 
@@ -79,7 +88,7 @@ By convention, states of cars on the road are displayed between steps 3 and 4. A
 
 \end{minipage}
 
-\caption{Both figures show cellular automata simulations with a periodic (circular) road of length 80, a maximum velocity of 5, and $p = 0.5$. While cars slow down randomly. on the left, the sparsity of the open road prevents a traffic jam from forming. On the right, with identical parameters but on a denser road, cars within the jam slow down and prevent the jam from clearing. Instead, the jam slowly moves left throughout the simulation.}
+\caption{Both figures show cellular automata simulations with a periodic (circular) road of length 80, a maximum velocity of 5, and $p = 0.5$. While cars slow down randomly. on the left, the sparsity of the open road (0.03) prevents a traffic jam from forming. On the right, with identical parameters but on a denser road (0.1), cars within the jam slow down and prevent the jam from clearing. Instead, the jam slowly moves left throughout the simulation.}
 \end{figure}
 
 Nagel and Schrenkenberg used flow ---defined as the number of vehicles passing a reference point per unit of time--- to compare between various cellular automata models. Intuitively, a model with a very high density should have roads so congested that few cars can move freely through the reference point, and thus have low flow, while models with too low a density should also have very few cars moving through the point. Thus the density of maximum flow should lie somewhere in between.
@@ -88,7 +97,7 @@ Nagel and Schrenkenberg used flow ---defined as the number of vehicles passing a
 \begin{figure*}
 \centering
 \includegraphics[scale = 0.6]{middleorig.png}
-\caption{This shows cellular automata simulations with a length of 100, a maximum velocity of 5, $p = 0.5$, Flow, as a function of car density follows an inverted V shape, peaking sharply at a density of around 0.15, before gradually becoming less efficient. When cars follow the 'always in the middle' rule, the model achieves a peak flow of 0.5 cars per time step.}
+\caption{This shows cellular automata simulations with a length of 100, a maximum velocity of 5, $p = 0.2$, Flow, as a function of car density follows an inverted V shape, peaking sharply at a density of around 0.15, before gradually becoming less efficient. When cars follow the 'always in the middle' rule, flow are generally less efficient.}
 \end{figure*}
 %We are citing \cite{nagel1992cellular}.
 
@@ -110,14 +119,100 @@ A further augmentation of the algorithm is for cars in the model to aim to be ar
 
 %Following the Nagel-Schrenkberg model (1992), we see... 
 
+\newpage
 \section*{Rickert (Multi-Lane) Models}
 
-In this section, we implement Rickert's (1996) extension to the Nagel-Schrankenberg model. Compared to a single lane road, 
+In this section, we implement Rickert's (1996) extension to the Nagel-Schrankenberg model. Rickert allows for multiple lanes in the cellular automata model, and adds the ability for cars to switch lanes. The new algorithm sequence is thus: 
+\begin{enumerate}
+\item \textbf{Switch Lanes:} If the distance to the car in front is less than the car's current velocity, then consider switching. Otherwise, there is no need to switch and continue to step 2.
+\begin{enumerate}
+	\item Consider the lane to the left (if it exists). Otherwise, consider the right lane.
+	\begin{enumerate}
+	\item Calculate the distance to the front car, and to the back car.
+	\item If the distance to the front is less than the current velocity \textbf{and} the distance to the back to less than the maximum velocity, switch to other lane.
+	\end{enumerate}
+	\item If a switch has been made, move on to step 2. Otherwise, consider the right lane if it exists and has not already been considered.
+\end{enumerate}
+\item \textbf{Accelerate/Decelerate:} Either following the original rule, or the 'always in the middle' rule.
+\item \textbf{Randomized Slowdown:} Same as in the original model.
+\item \textbf{Motion:} Same as in the original model. 
+\end{enumerate}
+
+\begin{figure}[h]
+\centering
+\begin{minipage}[t]{.5\textwidth}
+\raggedright
+...................5.5....5............5..............5.....5.....5........
+..............5...........55.......5.....5.5................5.5..5.........
+
+..................4.....3.....4............4.....................5.....5...
+.......................4..0.....5.......5.1....4..........4..1..2....4.....
+
+.5....................4.....4......5...........4..............4......4.....
+.........................2.1.........5..0...2......4...........2...3.....4.
+
+.....4....................4.....4......4...........4..............4.......5
+..4......................0...2........1..1....2........4..........3...3....
+
+....5.....5...................4.....4.......5...........5..............5...
+......4...................1.....3.......2..2....2...........5.......2.....4
+
+.5......4.....4...................4......5......4............5.............
+...4......4................1.......3......2...3...2.............4.....2....
+
+.....4.......5....4....................5......5......5...........4.........
+.......4.......5............1.........3.....2...2....3..............4....3.
+
+..........5......4....4.....................5.....4.......5..........4.....
+..4.........5.......5........1...........3....2....3.....4..............4..
+
+
+
+\end{minipage}% <---------------- Note the use of "%"
+\begin{minipage}[t]{.5\textwidth}
+\raggedleft
+..5..5.......5.5...5.55...5....55...5..55.....5.5.5...5.5...55....5....55..
+.......5..5...55..5..5....555.5....5.5...5.5.5.........55..5555..5......5..
+
+.4.......4...0...2.0.0...3....40..2...20.....5.1....4.0....30....4...3.0...
+3.....4..2..2.0.1..1.....400.1....4.1..2..10.....4....40.1.000.1.....4.....
+
+.....4.....2.0....10..1.....3.0.1...2.00......1.1...0..1...00......2..1.1..
+....4...2.1..1.1..2..2...000...2..0...2.1.00........3.0.10.00.1..2.......4.
+
+.........4.0..1...0.1..1....0.0..1..0.0.1.....0...2..1...2.00........2....2
+...5..2.0..1.0...2.1....300.1....20....10.0.1.......0..10.100..1...2....2..
+
+..3.....2.10....2.0..1...2...10...1.0.0...2...0........2.0.00...........3..
+.......4.1.0.0....1..2..00.1.1...00....00.0..1....0.0..0.1000....2...2....2
+
+3....3...100.....10....2....30.1..0.0..1....2..1........1.10.1.............
+..3.....10..1.1....1...200.0...2.00....00..1..1...0.0..0.0000......2....3..
+
+...3....3000.....0.1.....2..0.1.1.0.0...1.....2.1.......0.00...2...........
+3.....4.0.1..1.1....1..00.1.1...100....00...1..1...1.1..10000........2.....
+
+.......40000.....0..1.....1.0.0..10.0....1....0...2......100......3........
+...3..0..1.1.0...2....200..1.1..00.1...0.1....2.1..0..1.00000...........3..
+\end{minipage}
+
+\caption{oth figures show cellular automata simulations with a periodic (circular) road of length 80, a maximum velocity of 5, and $p = 0.5$. Density on the left is $0.1$, and 0.4 on the right.}
+\end{figure}
+
+
+
+
+
+
+
+
+
 
 Visualizations over time. 
 
 Analyze how much more traffic can flow through a multilane compared to a single lane model (Plot), latexify
 \section*{Model Comparison}
+When considering traffic at 
 
 
 How applicable is the model to Buenos Aires?
