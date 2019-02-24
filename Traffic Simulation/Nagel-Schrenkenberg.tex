@@ -7,6 +7,7 @@
 \usepackage{enumitem}
 \usepackage[margin=2cm]{caption}
 \usepackage{hyperref}
+
 \setlength\parindent{0pt}
 \hypersetup{
     colorlinks,
@@ -144,9 +145,11 @@ In this section, we implement Rickert's (1996) extension to the Nagel-Schrankenb
 \raggedright
 ...................5.5....5............5..............5.....5.....5........
 ..............5...........55.......5.....5.5................5.5..5.........
+\
 
 ..................4.....3.....4............4.....................5.....5...
 .......................4..0.....5.......5.1....4..........4..1..2....4.....
+\
 
 .5....................4.....4......5...........4..............4......4.....
 .........................2.1.........5..0...2......4...........2...3.....4.
@@ -196,7 +199,7 @@ In this section, we implement Rickert's (1996) extension to the Nagel-Schrankenb
 ...3..0..1.1.0...2....200..1.1..00.1...0.1....2.1..0..1.00000...........3..
 \end{minipage}
 
-\caption{oth figures show cellular automata simulations with a periodic (circular) road of length 80, a maximum velocity of 5, and $p = 0.5$. Density on the left is $0.1$, and 0.4 on the right.}
+\caption{Both figures show cellular automata simulations with a periodic (circular) road of length 80, a maximum velocity of 5, and $p = 0.5$. There are two lanes. Density on the left is $0.1$, and 0.4 on the right.}
 \end{figure}
 
 
@@ -208,48 +211,32 @@ In this section, we implement Rickert's (1996) extension to the Nagel-Schrankenb
 
 
 
-Visualizations over time. 
+\newpage
 
-Analyze how much more traffic can flow through a multilane compared to a single lane model (Plot), latexify
 \section*{Model Comparison}
-When considering traffic at 
+When running 100 simulations at each of the densities tested, it does not actually seem like increasing the number of lanes actually helps to increase or decrease the mean flow rate. However, there is a considerable difference between their standard deviations. Based on the plot, we can see that a model with 4 lanes has the narrowest 95\% interval.\\
+
+\begin{figure*}[h]
+\centering
+\includegraphics[scale = 0.6]{multilanemultiflow.png}
+\caption{This shows cellular automata simulations with a length of 100, a maximum velocity of 5, $p = 0.2$, on various densities. It would seem that the number of lanes is inversely proportional to the width of the confidence interval. Thus while at the same density, a road with fewer lanes is more likely to 'get lucky' and achieve a higher flow rate, it is also more likely to be unlucky and achieve a lower flow as well.}
+\end{figure*}
+
+This model certainly has its limitations. However, it is possible to conceive of cases where the model might be somewhat useful. For example, on a wide open street, such as the 9 de Julio Avenue, there are up to 7 lanes in each direction, and cars rarely have to stop for other cars. During rush hour, large sections of the road which do not intersection with orthogonal streets could also be modeled with the multi-lane simulation. \\
 
 
-How applicable is the model to Buenos Aires?
-- Buenos Aires is a city with wide, open streets. 
-
-How can bad driver behavior be encoded in our algorithm?
-- Define bad driver behavior
-
-Extend the model to include speed limits, traffic lights, obstacles, and lane merges. 
+There are behaviors encoded in the model which are slightly unrealistic - for example, every car on the model in actuality is trying (imperfectly, of course) to keep track of the cars in their vicinity, and adjust their speed accordingly. For example, 2 cars traveling at a speed of 5 could be less than 5 units apart, since both are reasonably certain that the other will not be hard-braking and suddenly stopping. Also, when deciding to switch lanes, cars do not necessarily leave 5 spaces between the lane to be switched to and the car behind them, for the same reason.\\
 
 \section*{Future Work}
-
-
-
-
-
-
-
-
-
-
-
-
-
-\newgeometry{left =2cm, right = 2cm}
-
-
-
-\bibliographystyle{apacitex}
-\bibliography{bibfile}
+There are many features of road traffic that could have been included to make the model more realistic. The obstacles, speed-limit zones, and traffic lights for example would heavily increase the versatility of the model. We could have also included bad driver behavior, such as not flashing their lights, or honking their horn, or even drunk driving (which would cause a crash with some probability, or even get pulled over by a police car with some probability). Crashes are a part of modern traffic that would also greatly increase the realism of our model. 
 
 \section*{Appendix}
+
 \subsection*{Single Lane Traffic Flow}
 The code used in this section is available \href{https://github.com/thetruejacob/CS166/blob/master/Nagel-Schrankenberg%20Model.ipynb}{here}.\\
 
 \subsection*{MultiLane Traffic Flow}
-
+The code used in this section is available \href{https://github.com/thetruejacob/CS166/blob/master/Rickert%20Model.ipynb}{here}.
 
 
 
