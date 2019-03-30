@@ -36,14 +36,26 @@
 In CS166, we explored models of social dynamics by using adaptive networks, and using in particular the NetworkX module available in Python. In this paper, I use the tools of network analysis to model the patterns of observed conformist and nonconformist ('hipster') modes of behavior. 
 
 \section*{Model Assumptions}
-The model has two core assumptions:
+The model has three core assumptions:
 \begin{enumerate}
 \item In the most basic model, the population is split into anticonformists ('hipsters'), who take their decisions in opposition to the majority, and the conforomists ('mainstreams', 'normies') who follow the majority.  
+\item There are only 2 opinions, 1 or 0, which are initially independent of the conformity/hipster status attribute of the population, and which is distributed across the population such that there is an even split. The aim of this model is to see how the identities of comformists and hipsters affect the adoption of which opinion. 
 \item The lag time needed by each individual to detect and react to the changes of states is hetergeneously distributed. In the default specified in the model, the log-normal distribution was chosen to roughly follow the 'technical adoption cycle' - a few individuals will respond quickly to a perceived trend in the public sphere, a large majority will take a middle amount of time, and a small percentage will take very long time. 
 \end{enumerate}
 A further assumption worth mentioning, though not specific to the the hipster simulation, is the heterogeneous interactions between agents. Empirically, some individuals in the real world naturally have more influence than others: trend makers, bloggers, pundits, etc. The degree distribution of follows a power law. We implement the hipster simulation on both a watts-strogatz graph, as well as a barabasi-albert graph to encompass these observed behaviors, though we have not tried a graph that simultaneously follows a power-law degree distribution, as well as generates local clustering.\\
 
+The update rule is as follows:
+\begin{enumerate}
+\item Choose a node at random. Identify its lag parameter, identity as hipster/conformist, and its neighbors
+\item Find the opinions of the neighbors at the time specified by the lag parameter. For example, if a node has a lag property of 3, then find what its neighbors opinions were 3 time steps ago. Let the mean of these opinions be given as $p$.
+\item Update the new opinion of the node with probability $p$ if the node is a conformist, or $1-p$ if it is a hipster.
+\end{enumerate}
+
+
+
 The probability of hipsters is fixed, and distributed heterogeneously across the population. However, the way in which an individual reacts with the environment is idiosyncratic. The system can also be described as stochastic, since individuals are randomly chosen to react to the environment, and reaction also follows a bernoulli distribution. As a result the state of any given individual follows a Markov jump process. To see, this, consider a network with 2 nodes and 1 edge.
+
+\newgeometry{left=2cm, right=2cm}
 
 \section*{Local Analysis}
 There are 3 possible combinations of 2-node simulations:
@@ -53,7 +65,6 @@ There are 3 possible combinations of 2-node simulations:
 \item \textbf{1 Conformist, 1 Hipster:} In this case, the opinions of both nodes will rapidly oscillate back and forth indefinitely. As the conformist node attempts to copy the opinion of the hipster node, the latter will attempt to deviate from the former.   
 \end{enumerate}
 
-\newgeometry{left=2cm, right=2cm}
 \begin{figure*}[h]
 \centering
 \includegraphics[scale = 0.6]{2conformists.png}
@@ -61,7 +72,6 @@ There are 3 possible combinations of 2-node simulations:
 \includegraphics[scale = 0.6]{1ofeach.png}
 \caption{The toy model involving 2 hipsters are remarkably similar, though notice the different scales - the 2 conformists converge at absolute agreement, while the 2 hipsters converge at absolute disagreement. The model involving both 1 conformist and 1 hipster however shows extreme oscillatory behavior.}
 \end{figure*}
-
 
 
 
@@ -91,8 +101,8 @@ Because of the bare-bones nature of the model, the scope of generalizability of 
 \section*{Appendix}
 
 
-\subsection*{MultiLane Traffic Flow}
-The code used in this section is available \href{https://github.com/thetruejacob/CS166/blob/master/Rickert%20Model.ipynb}{here}.
+\subsection*{Implementation and Simulation Analysis}
+The code used in this section is available \href{https://github.com/thetruejacob/CS166/blob/master/Network%20Simulation%20Assignment/Network%20Simulation.ipynb}{here}.
 
 
 
